@@ -1,0 +1,89 @@
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 16px; 
+    padding: 16px;
+    
+  }
+  
+  .cards{
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #e1e1e1;
+    padding: 16px;
+    box-shadow: 5px 16px 45px rgba(0, 0, 0, 0.562);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px; 
+  }
+  
+  .cards:hover {
+    box-shadow: 5px 16px 45px rgba(0, 0, 0, 0.562);
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-img-top {
+    width: 100%;
+    height: 200px; 
+    object-fit: contain; 
+    border-radius: 8px;
+    background-color: #f5f5f5; 
+  }
+  
+  .card-body {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+  }
+  
+  .card-title {
+    margin-top:2rem ;
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+  }
+  
+ 
+  .btn-shop {
+    background-color: teal;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: flex-start; 
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ffffff;
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .btn-shop:hover {
+    background-color: rgb(15, 179, 179) 
+  }
+  
+  
+  @media (max-width: 1200px) {
+    .product-grid {
+      grid-template-columns: repeat(3, 1fr); 
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .product-grid {
+      grid-template-columns: repeat(2, 1fr); 
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .product-grid {
+      grid-template-columns: 1fr; 
+    }
+  }
