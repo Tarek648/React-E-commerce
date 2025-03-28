@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./ProductDetails.css";
 import { useEffect, useState } from "react";
 import { api } from "../../../utils/HTTP";
@@ -17,19 +17,24 @@ interface CartItem extends Product {
 
 function ProductDetails() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>(); 
   const [product, setProduct] = useState<Product | null>(null);
 
-useEffect(() => {
-  document.title = "Product Page";
-  const productId = window.location.pathname.split("/").pop();
+  useEffect(() => {
+    document.title = "Product Page";
 
-  api.get(`/products/${productId}`)
-    .then(({ data }) => setProduct(data))
-    .catch((error) => {
-      console.error("Error fetching product:", error);
-      navigate("/", { replace: true });
-    });
-}, [navigate]);
+    if (!id || isNaN(Number(id))) {
+      navigate("/", { replace: true }); 
+      return;
+    }
+
+    api.get(`/products/${id}`)
+      .then(({ data }) => setProduct(data))
+      .catch((error) => {
+        console.error("Error fetching product:", error);
+        navigate("/", { replace: true });
+      });
+  }, [id, navigate]);
   const addToCart = () => {
     if (!product) return;
     

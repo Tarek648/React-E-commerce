@@ -26,6 +26,7 @@ const Login = () => {
       }>('/auth/login', {
         username: username.trim(),
         password: password.trim(),
+        expiresInMins: 60, 
       });
   
       const data = response.data;
