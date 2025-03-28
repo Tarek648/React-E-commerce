@@ -12,7 +12,7 @@ function Register() {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
 
-    
+   
     if (!username || !email || !password) {
       setError("Please fill in all fields.");
       return;

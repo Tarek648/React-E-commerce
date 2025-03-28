@@ -1,5 +1,4 @@
-
-export const fetchUserDetails = async (): Promise<string> => {
+export const fetchUserDetails = async ()=> {
     const token = localStorage.getItem("accessToken");
     if (!token) return "Guest"; 
   
@@ -13,7 +12,7 @@ export const fetchUserDetails = async (): Promise<string> => {
         const userData = await response.json();
         return userData.username || "Guest";
       }
-      return "User";
+      return "Guest";
     } catch (error) {
       console.error("Failed to fetch user data:", error);
       return "Guest";

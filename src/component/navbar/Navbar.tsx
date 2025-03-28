@@ -12,14 +12,12 @@ interface NavbarP {
 function Navbar({ onSearch, cartCount }: NavbarP) {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("Guest");
+  const [username, setUsername] = useState<string>("");
   const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
-    const storedUsername = localStorage.getItem("username");
     setIsLoggedIn(!!accessToken);
-    setUsername(storedUsername || "Guest");
   }, []);
   
   const loadUserData = async () => {

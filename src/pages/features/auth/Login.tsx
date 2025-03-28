@@ -23,7 +23,6 @@ const Login = () => {
       const response = await api.post<{
         accessToken: string;
         username: string;
-        message?: string;
       }>('/auth/login', {
         username: username.trim(),
         password: password.trim(),
@@ -38,7 +37,7 @@ const Login = () => {
         console.log("Login successful!");
         navigate("/");
       } else {
-        setError(data.message || "Invalid username or password.");
+        setError("Invalid username or password.");
       }
     } catch (err: unknown) {
       const error = err as Error;
