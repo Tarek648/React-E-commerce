@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Index from "../../component/Index";
+import Index from "../../component/product-card/Index";
 import { api, setupAxiosInterceptor } from "../../utils/HTTP";
 import Header from "../../component/header/Header";
 import Navbar from "../../component/navbar/Navbar";
