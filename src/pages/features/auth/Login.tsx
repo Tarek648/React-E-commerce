@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "./login.css";
 import { FaHome } from "react-icons/fa";
 import { IconButton } from "@mui/material";
+import { api } from "../../../utils/HTTP";
 
 
 const Login = () => {
@@ -17,35 +18,32 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     try {
-      const res = await fetch('https://dummyjson.com/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username.trim(),
-          password: password.trim(),
-        }),
+      const response = await api.post<{
+        accessToken: string;
+        username: string;
+        message?: string;
+      }>('/auth/login', {
+        username: username.trim(),
+        password: password.trim(),
       });
-
-      const data = await res.json();
+  
+      const data = response.data;
       console.log("API Response:", data);
-
+  
       if (data.accessToken) {
-        
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("username", data.username);
         console.log("Login successful!");
-
-        
-
         navigate("/");
       } else {
         setError(data.message || "Invalid username or password.");
       }
-    } catch (err) {
+    } catch (err: unknown) {
+      const error = err as Error;
       setError("Login failed. Please try again.");
-      console.error("Error:", err);
+      console.error("Error:", error);
     }
   };
 
@@ -58,7 +56,7 @@ const Login = () => {
       <div className="auth-card">
       <IconButton
         className="btn-back"
-        onClick={() => navigate(-1)} 
+        onClick={() => navigate("/")} 
       >
               <FaHome />
       </IconButton>

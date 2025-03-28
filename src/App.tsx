@@ -1,23 +1,23 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import ProductDetails from "./pages/ProductDetails"; 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Home from "./pages/home/Home";
+import ProductDetails from "./pages/features/product/ProductDetails";
+import Login from "./pages/features/auth/Login";
+import Register from "./pages/features/auth/Register";
 import ProtectedRoute from "./component/ProtectedRoute";
-import CartPage from "./pages/CartPage"; 
+import CartPage from "./pages/features/cart/CartPage";
 
 function App() {
+
+
   return (
     <Router>
       <Routes>
-   
-          <Route path="/" element={<Home />} />
-          <Route path="/product-details" element={<ProductDetails />} />
-          <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route element={<ProtectedRoute />}>
-        <Route path="/cart" element={<CartPage />} />
-          
+        <Route path="/product-details/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<CartPage />} />
         </Route>
       </Routes>
     </Router>

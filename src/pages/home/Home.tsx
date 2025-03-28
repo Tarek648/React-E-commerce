@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Index from "../component/Index";
-import axios from "axios";
-import Header from "./Header";
-import Navbar from "./Navbar";
+import Index from "../../component/Index";
+import { api, setupAxiosInterceptor } from "../../utils/HTTP";
+import Header from "../../component/header/Header";
+import Navbar from "../../component/navbar/Navbar";
 
 interface Product {
   id: number;
@@ -31,28 +31,15 @@ function Home() {
   const [cartCount, setCartCount] = useState<number>(0);
 
   useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        const accessToken = localStorage.getItem("accessToken");
-        if (accessToken) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
+    const cleanupInterceptor = setupAxiosInterceptor();
+    
     return () => {
-      axios.interceptors.request.eject(requestInterceptor);
+      cleanupInterceptor();
     };
   }, []);
 
-  
   function fetchProducts() {
-    axios
-      .get<{ products: Product[] }>("https://dummyjson.com/products")
+    api.get<{ products: Product[] }>("/products")
       .then((response) => {
         setProducts(response.data.products);
       })
@@ -61,7 +48,6 @@ function Home() {
       });
   }
 
-  
   useEffect(() => {
     const cart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
     setCartCount(cart.length);
@@ -71,9 +57,6 @@ function Home() {
     fetchProducts();
   }, []);
 
-  const handleSearch = (s: string) => {
-    setSearch(s);
-  };
 
   const searchProducts = products.filter((product) =>
     product.title.toLowerCase().includes(search.toLowerCase())
@@ -82,8 +65,8 @@ function Home() {
   return (
     <div>
       <Header />
-      <Navbar onSearch={handleSearch} cartCount={cartCount} />
-            <div className="container">
+      <Navbar onSearch={(s: string) => setSearch(s)} cartCount={cartCount} />
+      <div className="container">
         <div className="product-grid">
           {searchProducts.length > 0 ? (
             searchProducts.map((product, i) => (

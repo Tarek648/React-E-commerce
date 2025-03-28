@@ -21,15 +21,10 @@ function Index(props: Product) {
     return title;
   };
 
-  const handleShopNow = () => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      alert("You need to login first.");
-      navigate("/login");
-    } else {
-      navigate("/product-details", { state: props }); 
-    }
-  };
+const handleShopNow = () => {
+
+    navigate(`/product-details/${props.id}`);
+};
 
   return (
      <div className="cards">

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { IconButton } from "@mui/material";
 import { FaTrashAlt, FaArrowLeft } from "react-icons/fa";
 import "./CartPage.css";
+import { fetchUserDetails } from "../../../utils/authMe";
 
 interface CartItem {
   id: number;
@@ -18,51 +19,41 @@ function CartPage() {
   const [username, setUsername] = useState(localStorage.getItem("username") || "");
   const [isLoading, setIsLoading] = useState(false);
 
+
   useEffect(() => {
-    document.title="Cart Page"
-    const fetchUserDetails = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-  
-      try {
-        const response = await fetch("https://dummyjson.com/auth/me", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
-        if (response.ok) {
-          const userData = await response.json();
-          setUsername(userData.username || "User"); 
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-      }
+    document.title = "Cart Page";
+    const loadUserData = async () => {
+      const username = await fetchUserDetails();
+      setUsername(username);
     };
+  
+    loadUserData();
   
     const fetchCartData = async () => {
       try {
         const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-        setCart(localCart.length > 0 ? localCart : []);
+        const validatedCart = localCart.filter((item: any) => 
+          item && 
+          typeof item.id === 'number' && 
+          typeof item.price === 'number' &&
+          typeof item.quantity === 'number'
+        );
+        setCart(validatedCart.length > 0 ? validatedCart : []);
       } catch (error) {
         console.error("Error loading cart:", error);
         setCart([]);
       }
     };
   
-    fetchUserDetails(); 
     fetchCartData(); 
   }, []);
 
   const getShippingCost = () => {
     const total = parseFloat(getTotal());
+    if (isNaN(total)) return 0;
 
-    if (total > 100) {
-      return 0;
-    }
-
-    if (total > 50) {
-      return 25;
-    }
+    if (total > 100) return 0;
+    if (total > 50) return 25;
     return 50;
   };
 
@@ -77,17 +68,8 @@ function CartPage() {
     setIsLoading(true);
 
     try {
-      const authCheck = await fetch("https://dummyjson.com/auth/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!authCheck.ok) throw new Error("Authentication failed");
-
+    
       alert(`Order placed successfully! Thank you, ${username}!`);
-
       localStorage.removeItem("cart");
       setCart([]);
       navigate("/");
@@ -115,18 +97,22 @@ function CartPage() {
   };
 
   const getTotal = () => {
-    return cart
-      .reduce((total, item) => total + item.price * item.quantity, 0)
-      .toFixed(2);
+    if (!cart || cart.length === 0) return "0.00";
+    const total = cart.reduce((total, item) => {
+      const price = item.price || 0;
+      const quantity = item.quantity || 0;
+      return total + (price * quantity);
+    }, 0);
+    return total.toFixed(2);
   };
 
   return (
     <div className="cart-container">
       <div className="cart-header">
-        <IconButton className="btn-back" onClick={() => navigate(-1)}>
+        <IconButton className="btn-back" onClick={() => navigate("/")}>
           <FaArrowLeft />
         </IconButton>
-        <h1 className="cart-title">{username}'s Cart </h1>
+        <h1 className="cart-title">{username}'s Cart</h1>
       </div>
 
       {cart.length === 0 ? (
@@ -139,43 +125,52 @@ function CartPage() {
       ) : (
         <>
           <div className="cart-items">
-            {cart.map((item) => (
-              <div key={item.id} className="cart-item">
-                <img
-                  src={item.thumbnail}
-                  alt={item.title}
-                  className="cart-item-image"
-                />
-                <div className="cart-item-details">
-                  <h3>{item.title}</h3>
-                  <p>Price: ${item.price.toFixed(2)}</p>
-                  <div className="quantity-controls">
-                    <button
-                      className="btn-quantity"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    >
-                      -
-                    </button>
-                    <span className="quantity">{item.quantity}</span>
-                    <button
-                      className="btn-quantity"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    >
-                      +
-                    </button>
-                    <IconButton
-                      className="btn-remove"
-                      onClick={() => deleteItem(item.id)}
-                    >
-                      <FaTrashAlt />
-                    </IconButton>
+            {cart.map((item) => {
+              if (!item) return null;
+              const price = item.price || 0;
+              const quantity = item.quantity || 0;
+              
+              return (
+                <div key={item.id} className="cart-item">
+                  <img
+                    src={item.thumbnail || '/placeholder-image.jpg'}
+                    alt={item.title || 'Product image'}
+                    className="cart-item-image"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    }}
+                  />
+                  <div className="cart-item-details">
+                    <h3>{item.title || 'Untitled Product'}</h3>
+                    <p>Price: ${price.toFixed(2)}</p>
+                    <div className="quantity-controls">
+                      <button
+                        className="btn-quantity"
+                        onClick={() => updateQuantity(item.id, quantity - 1)}
+                      >
+                        -
+                      </button>
+                      <span className="quantity">{quantity}</span>
+                      <button
+                        className="btn-quantity"
+                        onClick={() => updateQuantity(item.id, quantity + 1)}
+                      >
+                        +
+                      </button>
+                      <IconButton
+                        className="btn-remove"
+                        onClick={() => deleteItem(item.id)}
+                      >
+                        <FaTrashAlt />
+                      </IconButton>
+                    </div>
+                    <p className="item-total">
+                      Total: ${(price * quantity).toFixed(2)}
+                    </p>
                   </div>
-                  <p className="item-total">
-                    Total: ${(item.price * item.quantity).toFixed(2)}
-                  </p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="cart-summary">
@@ -196,7 +191,6 @@ function CartPage() {
                     ).toFixed(2)}`
                   : ""}
               </span>
-
               <span>${getShippingCost()}</span>
             </div>
             <div className="summary-row total">

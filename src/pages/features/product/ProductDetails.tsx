@@ -1,7 +1,7 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./ProductDetails.css";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
+import { api } from "../../../utils/HTTP";
 
 interface Product {
   id: number;
@@ -16,15 +16,23 @@ interface CartItem extends Product {
 }
 
 function ProductDetails() {
-  useEffect(() => {
-    document.title = "Product Page";
-  }, []);
-
   const navigate = useNavigate();
-  const location = useLocation();
-  const product = location.state as Product;
+  const [product, setProduct] = useState<Product | null>(null);
 
+useEffect(() => {
+  document.title = "Product Page";
+  const productId = window.location.pathname.split("/").pop();
+
+  api.get(`/products/${productId}`)
+    .then(({ data }) => setProduct(data))
+    .catch((error) => {
+      console.error("Error fetching product:", error);
+      navigate("/", { replace: true });
+    });
+}, [navigate]);
   const addToCart = () => {
+    if (!product) return;
+    
     const cart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingProduct = cart.find((item) => item.id === product.id);
 
@@ -35,11 +43,16 @@ function ProductDetails() {
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Product added to cart!");
-    navigate("/")
+    navigate("/cart");
   };
 
-
+  if (!product) {
+    return (
+      <div className="product-details-container">
+        <p>Loading product...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="product-details-container">
@@ -55,7 +68,7 @@ function ProductDetails() {
         <button onClick={addToCart} className="btn-buy">
           Add to Cart
         </button>
-        <button onClick={() => navigate(-1)} className="btn-back">
+        <button onClick={() => navigate("/")} className="btn-back">
           Back
         </button>
       </div>
